@@ -1,0 +1,105 @@
+
+R version 3.4.2 (2017-09-28) -- "Short Summer"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[R.app GUI 1.70 (7434) x86_64-apple-darwin15.6.0]
+
+[History restored from /Users/jamster/.Rapp.history]
+
+> FakeTweets
+Error: object 'FakeTweets' not found
+objc[2155]: Class FIFinderSyncExtensionHost is implemented in both /System/Library/PrivateFrameworks/FinderKit.framework/Versions/A/FinderKit (0x7fff88da8a70) and /System/Library/PrivateFrameworks/FileProvider.framework/OverrideBundles/FinderSyncCollaborationFileProviderOverride.bundle/Contents/MacOS/FinderSyncCollaborationFileProviderOverride (0x10b8dccd8). One of the two will be used. Which one is undefined.
+> FakeCSV = read.csv("tweets.csv")
+Warning message:
+In scan(file = file, what = what, sep = sep, quote = quote, dec = dec,  :
+  embedded nul(s) found in input
+> TweetsFake <- data.frame(FakeCSV$text)
+> head(TweetsFake)
+                                                                                          FakeCSV.text
+1                                       https://t.co/iocNIgHxXH. @LovesOfaLDNgirl  here is the link!!!
+2                                                     Well done hubby @Allan_76 http://t.co/AaeTwLucUG
+3 Two years with my lovely husband - thank you for the cotton flowers @Allan_76 http://t.co/R1x2vaWXEv
+4                              Sorry bunny about your ears but I was hungry.... http://t.co/9xyGLpgiSB
+5                                                Small man, big drink @Allan_76 http://t.co/4NUl8UD9IU
+6                                                              Last day, boo!!! http://t.co/arIk2pjiJA
+> TweetsFake <- data.frame(text = FakeCSV$text)
+> head(TweetsFake)
+                                                                                                  text
+1                                       https://t.co/iocNIgHxXH. @LovesOfaLDNgirl  here is the link!!!
+2                                                     Well done hubby @Allan_76 http://t.co/AaeTwLucUG
+3 Two years with my lovely husband - thank you for the cotton flowers @Allan_76 http://t.co/R1x2vaWXEv
+4                              Sorry bunny about your ears but I was hungry.... http://t.co/9xyGLpgiSB
+5                                                Small man, big drink @Allan_76 http://t.co/4NUl8UD9IU
+6                                                              Last day, boo!!! http://t.co/arIk2pjiJA
+> TweetsFakeA <- data.frame(text = gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text))))
+> head(TweetsFakeA)
+                                                                   text
+1                                                   here is the link!!!
+2                                                     Well done hubby  
+3 Two years with my lovely husband - thank you for the cotton flowers  
+4                     Sorry bunny about your ears but I was hungry.... 
+5                                                Small man, big drink  
+6                                                     Last day, boo!!! 
+> TweetsFakeA <- data.frame(text = gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", gsub('[[:punct:] ]+', ' ', TweetsFake$text)))))
+> head(TweetsFakeA)
+                                                                                         text
+1                                           t co iocNIgHxXH LovesOfaLDNgirl here is the link 
+2                                                   Well done hubby Allan 76  t co AaeTwLucUG
+3 Two years with my lovely husband thank you for the cotton flowers Allan 76  t co R1x2vaWXEv
+4                               Sorry bunny about your ears but I was hungry  t co 9xyGLpgiSB
+5                                               Small man big drink Allan 76  t co 4NUl8UD9IU
+6                                                               Last day boo  t co arIk2pjiJA
+> TweetsFakeA <- data.frame(text = gsub('[[:punct:] ]+', ' ', (gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text)))))
++ head(TweetsFakeA)
+Error: unexpected symbol in:
+"TweetsFakeA <- data.frame(text = gsub('[[:punct:] ]+', ' ', (gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text)))))
+head"
+> TweetsFakeA <- data.frame(text = gsub('[[:punct:] ]+', ' ', gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text))))
++ 
+> TweetsFakeA <- data.frame(text = gsub('[[:punct:] ]+', ' ', gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text)))))
+> head(TweetsFakeA)
+                                                                text
+1                                                  here is the link 
+2                                                   Well done hubby 
+3 Two years with my lovely husband thank you for the cotton flowers 
+4                      Sorry bunny about your ears but I was hungry 
+5                                               Small man big drink 
+6                                                      Last day boo 
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> TweetsFakeA <- data.frame(text = tolower(gsub('[[:punct:] ]+', ' ', gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text))))))
+> TweetsFakeA <- data.frame(text = tolower(gsub('[0-9]', '', gsub('[[:punct:] ]+', ' ', gsub("http[[:alnum:][:punct:]]*", "", gsub("@[[:alnum:][:punct:]]*", "", gsub("#[[:alnum:][:punct:]]*", "", TweetsFake$text)))))))
+> head(TweetsFakeA)
+                                                                text
+1                                                  here is the link 
+2                                                   well done hubby 
+3 two years with my lovely husband thank you for the cotton flowers 
+4                      sorry bunny about your ears but i was hungry 
+5                                               small man big drink 
+6                                                      last day boo 
+> 
