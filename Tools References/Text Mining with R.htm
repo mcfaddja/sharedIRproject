@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://tidytextmining.com/sentiment.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Text Mining with R</title>
+  
+  <meta name="description" content="A guide to text analysis within the tidy data framework, using the tidytext package and other tidy tools">
+  <meta name="generator" content="bookdown 0.3 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Text Mining with R">
+  <meta property="og:type" content="book">
+  
+  <meta property="og:image" content="images/cover.png">
+  <meta property="og:description" content="A guide to text analysis within the tidy data framework, using the tidytext package and other tidy tools">
+  <meta name="github-repo" content="dgrtwo/tidy-text-mining">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Text Mining with R">
+  
+  <meta name="twitter:description" content="A guide to text analysis within the tidy data framework, using the tidytext package and other tidy tools">
+  <meta name="twitter:image" content="images/cover.png">
+
+<meta name="author" content="Julia Silge and David Robinson">
+
+
+<meta name="date" content="2017-05-07">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="http://tidytextmining.com/tidytext.html">
+<link rel="next" href="http://tidytextmining.com/tfidf.html">
+
+<script async="" src="./Text Mining with R_files/analytics.js"></script><script src="./Text Mining with R_files/jquery.min.js"></script>
+<link href="./Text Mining with R_files/style.css" rel="stylesheet">
+<link href="./Text Mining with R_files/plugin-bookdown.css" rel="stylesheet">
+<link href="./Text Mining with R_files/plugin-highlight.css" rel="stylesheet">
+<link href="./Text Mining with R_files/plugin-search.css" rel="stylesheet">
+<link href="./Text Mining with R_files/plugin-fontsettings.css" rel="stylesheet">
+
+
+
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68765210-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="./Text Mining with R_files/style(1).css" type="text/css">
+<script src="./Text Mining with R_files/MathJax.js" id=""></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+
+<body><div id="MathJax_Message" style="display: none;"></div>
+
+
+  <div class="book without-animation with-summary   font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary"><div class="book-search" role="search"><input type="search" class="form-control" placeholder="Type to search"></div>
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="http://tidytextmining.com/">Text Mining with R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="http://tidytextmining.com/index.html"><i class="fa fa-check"></i>Welcome to Text Mining with R</a></li>
+<li class="chapter" data-level="" data-path="preface.html"><a href="http://tidytextmining.com/preface.html"><i class="fa fa-check"></i>Preface</a><ul style="display: none;">
+<li class="chapter" data-level="" data-path="preface.html"><a href="http://tidytextmining.com/preface.html#outline"><i class="fa fa-check"></i>Outline</a></li>
+<li class="chapter" data-level="" data-path="preface.html"><a href="http://tidytextmining.com/preface.html#topics-this-book-does-not-cover"><i class="fa fa-check"></i>Topics this book does not cover</a></li>
+<li class="chapter" data-level="" data-path="preface.html"><a href="http://tidytextmining.com/preface.html#about-this-book"><i class="fa fa-check"></i>About this book</a></li>
+<li class="chapter" data-level="" data-path="preface.html"><a href="http://tidytextmining.com/preface.html#using-code-examples"><i class="fa fa-check"></i>Using code examples</a></li>
+<li class="chapter" data-level="" data-path="preface.html"><a href="http://tidytextmining.com/preface.html#acknowledgements"><i class="fa fa-check"></i>Acknowledgements</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html"><i class="fa fa-check"></i><b>1</b> The tidy text format</a><ul style="display: none;">
+<li class="chapter" data-level="1.1" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html#contrasting-tidy-text-with-other-data-structures"><i class="fa fa-check"></i><b>1.1</b> Contrasting tidy text with other data structures</a></li>
+<li class="chapter" data-level="1.2" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html#the-unnest_tokens-function"><i class="fa fa-check"></i><b>1.2</b> The <code>unnest_tokens</code> function</a></li>
+<li class="chapter" data-level="1.3" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html#tidyausten"><i class="fa fa-check"></i><b>1.3</b> Tidying the works of Jane Austen</a></li>
+<li class="chapter" data-level="1.4" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html#the-gutenbergr-package"><i class="fa fa-check"></i><b>1.4</b> The gutenbergr package</a></li>
+<li class="chapter" data-level="1.5" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html#word-frequencies"><i class="fa fa-check"></i><b>1.5</b> Word frequencies</a></li>
+<li class="chapter" data-level="1.6" data-path="tidytext.html"><a href="http://tidytextmining.com/tidytext.html#summary"><i class="fa fa-check"></i><b>1.6</b> Summary</a></li>
+</ul></li>
+<li class="chapter active" data-level="2" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html"><i class="fa fa-check"></i><b>2</b> Sentiment analysis with tidy data</a><ul style="display: block;">
+<li class="chapter" data-level="2.1" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#the-sentiments-dataset"><i class="fa fa-check"></i><b>2.1</b> The <code>sentiments</code> dataset</a></li>
+<li class="chapter" data-level="2.2" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#sentiment-analysis-with-inner-join" title="2.2 Sentiment analysis with inner join"><i class="fa fa-check"></i><b>2.2</b> Sentiment analysis with inner join</a></li>
+<li class="chapter" data-level="2.3" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#comparing-the-three-sentiment-dictionaries" title="2.3 Comparing the three sentiment dictionaries"><i class="fa fa-check"></i><b>2.3</b> Comparing the three sentiment dictionaries</a></li>
+<li class="chapter" data-level="2.4" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#most-positive-negative" title="2.4 Most common positive and negative words"><i class="fa fa-check"></i><b>2.4</b> Most common positive and negative words</a></li>
+<li class="chapter" data-level="2.5" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#wordclouds"><i class="fa fa-check"></i><b>2.5</b> Wordclouds</a></li>
+<li class="chapter" data-level="2.6" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#looking-at-units-beyond-just-words" title="2.6 Looking at units beyond just words"><i class="fa fa-check"></i><b>2.6</b> Looking at units beyond just words</a></li>
+<li class="chapter" data-level="2.7" data-path="sentiment.html"><a href="http://tidytextmining.com/sentiment.html#summary-1"><i class="fa fa-check"></i><b>2.7</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="tfidf.html"><a href="http://tidytextmining.com/tfidf.html" title="3 Analyzing word and document frequency: tf-idf"><i class="fa fa-check"></i><b>3</b> Analyzing word and document frequency: tf-idf</a><ul style="display: none;">
+<li class="chapter" data-level="3.1" data-path="tfidf.html"><a href="http://tidytextmining.com/tfidf.html#term-frequency-in-jane-austens-novels"><i class="fa fa-check"></i><b>3.1</b> Term frequency in Jane Austen’s novels</a></li>
+<li class="chapter" data-level="3.2" data-path="tfidf.html"><a href="http://tidytextmining.com/tfidf.html#zipfs-law"><i class="fa fa-check"></i><b>3.2</b> Zipf’s law</a></li>
+<li class="chapter" data-level="3.3" data-path="tfidf.html"><a href="http://tidytextmining.com/tfidf.html#the-bind_tf_idf-function"><i class="fa fa-check"></i><b>3.3</b> The <code>bind_tf_idf</code> function</a></li>
+<li class="chapter" data-level="3.4" data-path="tfidf.html"><a href="http://tidytextmining.com/tfidf.html#a-corpus-of-physics-texts"><i class="fa fa-check"></i><b>3.4</b> A corpus of physics texts</a></li>
+<li class="chapter" data-level="3.5" data-path="tfidf.html"><a href="http://tidytextmining.com/tfidf.html#summary-2"><i class="fa fa-check"></i><b>3.5</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html" title="4 Relationships between words: n-grams and correlations"><i class="fa fa-check"></i><b>4</b> Relationships between words: n-grams and correlations</a><ul style="display: none;">
+<li class="chapter" data-level="4.1" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#tokenizing-by-n-gram"><i class="fa fa-check"></i><b>4.1</b> Tokenizing by n-gram</a><ul style="display: none;">
+<li class="chapter" data-level="4.1.1" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#counting-and-filtering-n-grams"><i class="fa fa-check"></i><b>4.1.1</b> Counting and filtering n-grams</a></li>
+<li class="chapter" data-level="4.1.2" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#analyzing-bigrams"><i class="fa fa-check"></i><b>4.1.2</b> Analyzing bigrams</a></li>
+<li class="chapter" data-level="4.1.3" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#using-bigrams-to-provide-context-in-sentiment-analysis"><i class="fa fa-check"></i><b>4.1.3</b> Using bigrams to provide context in sentiment analysis</a></li>
+<li class="chapter" data-level="4.1.4" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#visualizing-a-network-of-bigrams-with-ggraph"><i class="fa fa-check"></i><b>4.1.4</b> Visualizing a network of bigrams with ggraph</a></li>
+<li class="chapter" data-level="4.1.5" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#visualizing-bigrams-in-other-texts"><i class="fa fa-check"></i><b>4.1.5</b> Visualizing bigrams in other texts</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#counting-and-correlating-pairs-of-words-with-the-widyr-package"><i class="fa fa-check"></i><b>4.2</b> Counting and correlating pairs of words with the widyr package</a><ul style="display: none;">
+<li class="chapter" data-level="4.2.1" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#counting-and-correlating-among-sections"><i class="fa fa-check"></i><b>4.2.1</b> Counting and correlating among sections</a></li>
+<li class="chapter" data-level="4.2.2" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#pairwise-correlation"><i class="fa fa-check"></i><b>4.2.2</b> Pairwise correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="ngrams.html"><a href="http://tidytextmining.com/ngrams.html#summary-3"><i class="fa fa-check"></i><b>4.3</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html" title="5 Converting to and from non-tidy formats"><i class="fa fa-check"></i><b>5</b> Converting to and from non-tidy formats</a><ul style="display: none;">
+<li class="chapter" data-level="5.1" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#tidy-dtm"><i class="fa fa-check"></i><b>5.1</b> Tidying a document-term matrix</a><ul style="display: none;">
+<li class="chapter" data-level="5.1.1" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#tidying-documenttermmatrix-objects"><i class="fa fa-check"></i><b>5.1.1</b> Tidying DocumentTermMatrix objects</a></li>
+<li class="chapter" data-level="5.1.2" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#tidying-dfm-objects"><i class="fa fa-check"></i><b>5.1.2</b> Tidying dfm objects</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#cast-dtm"><i class="fa fa-check"></i><b>5.2</b> Casting tidy text data into a matrix</a></li>
+<li class="chapter" data-level="5.3" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#tidying-corpus-objects-with-metadata"><i class="fa fa-check"></i><b>5.3</b> Tidying corpus objects with metadata</a><ul style="display: none;">
+<li class="chapter" data-level="5.3.1" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#financial"><i class="fa fa-check"></i><b>5.3.1</b> Example: mining financial articles</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="dtm.html"><a href="http://tidytextmining.com/dtm.html#summary-4"><i class="fa fa-check"></i><b>5.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html"><i class="fa fa-check"></i><b>6</b> Topic modeling</a><ul style="display: none;">
+<li class="chapter" data-level="6.1" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#latent-dirichlet-allocation"><i class="fa fa-check"></i><b>6.1</b> Latent Dirichlet allocation</a><ul style="display: none;">
+<li class="chapter" data-level="6.1.1" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#word-topic-probabilities"><i class="fa fa-check"></i><b>6.1.1</b> Word-topic probabilities</a></li>
+<li class="chapter" data-level="6.1.2" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#document-topic-probabilities"><i class="fa fa-check"></i><b>6.1.2</b> Document-topic probabilities</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#library-heist"><i class="fa fa-check"></i><b>6.2</b> Example: the great library heist</a><ul style="display: none;">
+<li class="chapter" data-level="6.2.1" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#lda-on-chapters"><i class="fa fa-check"></i><b>6.2.1</b> LDA on chapters</a></li>
+<li class="chapter" data-level="6.2.2" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#per-document"><i class="fa fa-check"></i><b>6.2.2</b> Per-document classification</a></li>
+<li class="chapter" data-level="6.2.3" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#by-word-assignments-augment"><i class="fa fa-check"></i><b>6.2.3</b> By word assignments: <code>augment</code></a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#alternative-lda-implementations"><i class="fa fa-check"></i><b>6.3</b> Alternative LDA implementations</a></li>
+<li class="chapter" data-level="6.4" data-path="topicmodeling.html"><a href="http://tidytextmining.com/topicmodeling.html#summary-5"><i class="fa fa-check"></i><b>6.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html" title="7 Case study: comparing Twitter archives"><i class="fa fa-check"></i><b>7</b> Case study: comparing Twitter archives</a><ul style="display: none;">
+<li class="chapter" data-level="7.1" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html#getting-the-data-and-distribution-of-tweets"><i class="fa fa-check"></i><b>7.1</b> Getting the data and distribution of tweets</a></li>
+<li class="chapter" data-level="7.2" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html#word-frequencies-1"><i class="fa fa-check"></i><b>7.2</b> Word frequencies</a></li>
+<li class="chapter" data-level="7.3" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html#comparing-word-usage"><i class="fa fa-check"></i><b>7.3</b> Comparing word usage</a></li>
+<li class="chapter" data-level="7.4" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html#changes-in-word-use"><i class="fa fa-check"></i><b>7.4</b> Changes in word use</a></li>
+<li class="chapter" data-level="7.5" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html#favorites-and-retweets"><i class="fa fa-check"></i><b>7.5</b> Favorites and retweets</a></li>
+<li class="chapter" data-level="7.6" data-path="twitter.html"><a href="http://tidytextmining.com/twitter.html#summary-6"><i class="fa fa-check"></i><b>7.6</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html"><i class="fa fa-check"></i><b>8</b> Case study: mining NASA metadata</a><ul style="display: none;">
+<li class="chapter" data-level="8.1" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#how-data-is-organized-at-nasa"><i class="fa fa-check"></i><b>8.1</b> How data is organized at NASA</a><ul style="display: none;">
+<li class="chapter" data-level="8.1.1" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#wrangling-and-tidying-the-data"><i class="fa fa-check"></i><b>8.1.1</b> Wrangling and tidying the data</a></li>
+<li class="chapter" data-level="8.1.2" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#some-initial-simple-exploration"><i class="fa fa-check"></i><b>8.1.2</b> Some initial simple exploration</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#word-co-ocurrences-and-correlations"><i class="fa fa-check"></i><b>8.2</b> Word co-ocurrences and correlations</a><ul style="display: none;">
+<li class="chapter" data-level="8.2.1" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#networks-of-description-and-title-words"><i class="fa fa-check"></i><b>8.2.1</b> Networks of Description and Title Words</a></li>
+<li class="chapter" data-level="8.2.2" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#networks-of-keywords"><i class="fa fa-check"></i><b>8.2.2</b> Networks of Keywords</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#calculating-tf-idf-for-the-description-fields"><i class="fa fa-check"></i><b>8.3</b> Calculating tf-idf for the description fields</a><ul style="display: none;">
+<li class="chapter" data-level="8.3.1" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#what-is-tf-idf-for-the-description-field-words"><i class="fa fa-check"></i><b>8.3.1</b> What is tf-idf for the description field words?</a></li>
+<li class="chapter" data-level="8.3.2" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#connecting-description-fields-to-keywords"><i class="fa fa-check"></i><b>8.3.2</b> Connecting description fields to keywords</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#topic-modeling"><i class="fa fa-check"></i><b>8.4</b> Topic modeling</a><ul style="display: none;">
+<li class="chapter" data-level="8.4.1" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#casting-to-a-document-term-matrix"><i class="fa fa-check"></i><b>8.4.1</b> Casting to a document-term matrix</a></li>
+<li class="chapter" data-level="8.4.2" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#ready-for-topic-modeling"><i class="fa fa-check"></i><b>8.4.2</b> Ready for topic modeling</a></li>
+<li class="chapter" data-level="8.4.3" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#interpreting-the-topic-model"><i class="fa fa-check"></i><b>8.4.3</b> Interpreting the topic model</a></li>
+<li class="chapter" data-level="8.4.4" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#connecting-topic-modeling-with-keywords"><i class="fa fa-check"></i><b>8.4.4</b> Connecting topic modeling with keywords</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="nasa.html"><a href="http://tidytextmining.com/nasa.html#summary-7"><i class="fa fa-check"></i><b>8.5</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html"><i class="fa fa-check"></i><b>9</b> Case study: analyzing usenet text</a><ul style="display: none;">
+<li class="chapter" data-level="9.1" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#pre-processing"><i class="fa fa-check"></i><b>9.1</b> Pre-processing</a><ul style="display: none;">
+<li class="chapter" data-level="9.1.1" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#pre-processing-text"><i class="fa fa-check"></i><b>9.1.1</b> Pre-processing text</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#words-in-newsgroups"><i class="fa fa-check"></i><b>9.2</b> Words in newsgroups</a><ul style="display: none;">
+<li class="chapter" data-level="9.2.1" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#finding-tf-idf-within-newsgroups"><i class="fa fa-check"></i><b>9.2.1</b> Finding tf-idf within newsgroups</a></li>
+<li class="chapter" data-level="9.2.2" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#topic-modeling-1"><i class="fa fa-check"></i><b>9.2.2</b> Topic modeling</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#sentiment-analysis"><i class="fa fa-check"></i><b>9.3</b> Sentiment analysis</a><ul style="display: none;">
+<li class="chapter" data-level="9.3.1" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#sentiment-analysis-by-word"><i class="fa fa-check"></i><b>9.3.1</b> Sentiment analysis by word</a></li>
+<li class="chapter" data-level="9.3.2" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#sentiment-analysis-by-message"><i class="fa fa-check"></i><b>9.3.2</b> Sentiment analysis by message</a></li>
+<li class="chapter" data-level="9.3.3" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#n-gram-analysis"><i class="fa fa-check"></i><b>9.3.3</b> N-gram analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="9.4" data-path="usenet.html"><a href="http://tidytextmining.com/usenet.html#summary-8"><i class="fa fa-check"></i><b>9.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="references.html"><a href="http://tidytextmining.com/references.html"><i class="fa fa-check"></i><b>10</b> References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body fixed">
+      <div class="body-inner">
+        <div class="book-header fixed" role="navigation" style="background-color: rgb(255, 255, 255);">
+          <a class="btn pull-left js-toolbar-action" aria-label="" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-align-justify"></i></a><a class="btn pull-left js-toolbar-action" aria-label="Search" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-search"></i></a><div class="dropdown pull-right  js-toolbar-action"><a class="btn toggle-dropdown" aria-label="Share" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-share-alt"></i></a><div class="dropdown-menu dropdown-left"><div class="dropdown-caret"><span class="caret-outer"></span><span class="caret-inner"></span></div><div class="buttons"><button class="button size-5 ">Facebook</button><button class="button size-5 ">Google+</button><button class="button size-5 ">Twitter</button><button class="button size-5 ">Weibo</button><button class="button size-5 ">Instapaper</button></div></div></div><a class="btn pull-right js-toolbar-action" aria-label="" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-facebook"></i></a><a class="btn pull-right js-toolbar-action" aria-label="" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-twitter"></i></a><div class="dropdown pull-left font-settings js-toolbar-action"><a class="btn toggle-dropdown" aria-label="Font Settings" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-font"></i></a><div class="dropdown-menu dropdown-right"><div class="dropdown-caret"><span class="caret-outer"></span><span class="caret-inner"></span></div><div class="buttons"><button class="button size-2 font-reduce">A</button><button class="button size-2 font-enlarge">A</button></div><div class="buttons"><button class="button size-2 ">Serif</button><button class="button size-2 ">Sans</button></div><div class="buttons"><button class="button size-3 ">White</button><button class="button size-3 ">Sepia</button><button class="button size-3 ">Night</button></div></div></div><a class="btn pull-left js-toolbar-action" aria-label="Edit" href="http://tidytextmining.com/sentiment.html#"><i class="fa fa-edit"></i></a><h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="http://tidytextmining.com/">Text Mining with R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="sentiment" class="section level1">
+<h1><span class="header-section-number">2</span> Sentiment analysis with tidy data</h1>
+<p>In the previous chapter, we explored in depth what we mean by the tidy text format and showed how this format can be used to approach questions about word frequency. This allowed us to analyze which words are used most frequently in documents and to compare documents, but now let’s investigate a different topic. Let’s address the topic of opinion mining or sentiment analysis. When human readers approach a text, we use our understanding of the emotional intent of words to infer whether a section of text is positive or negative, or perhaps characterized by some other more nuanced emotion like surprise or disgust. We can use the tools of text mining to approach the emotional content of text programmatically, as shown in Figure <a href="http://tidytextmining.com/sentiment.html#fig:tidyflow-ch2">2.1</a>.</p>
+<div class="figure"><span id="fig:tidyflow-ch2"></span>
+<img src="./Text Mining with R_files/tidyflow-ch-2.png" alt="A flowchart of a typical text analysis that uses tidytext for sentiment analysis. This chapter shows how to implement sentiment analysis using tidy data principles." width="100%">
+<p class="caption">
+Figure 2.1: A flowchart of a typical text analysis that uses tidytext for sentiment analysis. This chapter shows how to implement sentiment analysis using tidy data principles.
+</p>
+</div>
+<p>One way to analyze the sentiment of a text is to consider the text as a combination of its individual words and the sentiment content of the whole text as the sum of the sentiment content of the individual words. This isn’t the only way to approach sentiment analysis, but it is an often-used approach, <em>and</em> an approach that naturally takes advantage of the tidy tool ecosystem.</p>
+<div id="the-sentiments-dataset" class="section level2">
+<h2><span class="header-section-number">2.1</span> The <code>sentiments</code> dataset</h2>
+<p>As discussed above, there are a variety of methods and dictionaries that exist for evaluating the opinion or emotion in text. The tidytext package contains several sentiment lexicons in the <code>sentiments</code> dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidytext)
+
+sentiments</code></pre></div>
+<pre><code>## # A tibble: 27,314 × 4
+##           word sentiment lexicon score
+##          &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt; &lt;int&gt;
+## 1       abacus     trust     nrc    NA
+## 2      abandon      fear     nrc    NA
+## 3      abandon  negative     nrc    NA
+## 4      abandon   sadness     nrc    NA
+## 5    abandoned     anger     nrc    NA
+## 6    abandoned      fear     nrc    NA
+## 7    abandoned  negative     nrc    NA
+## 8    abandoned   sadness     nrc    NA
+## 9  abandonment     anger     nrc    NA
+## 10 abandonment      fear     nrc    NA
+## # ... with 27,304 more rows</code></pre>
+<p>The three general-purpose lexicons are</p>
+<ul>
+<li><code>AFINN</code> from <a href="http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010">Finn Årup Nielsen</a>,</li>
+<li><code>bing</code> from <a href="https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html">Bing Liu and collaborators</a>, and</li>
+<li><code>nrc</code> from <a href="http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm">Saif Mohammad and Peter Turney</a>.</li>
+</ul>
+<p>All three of these lexicons are based on unigrams, i.e., single words. These lexicons contain many English words and the words are assigned scores for positive/negative sentiment, and also possibly emotions like joy, anger, sadness, and so forth. The <code>nrc</code> lexicon categorizes words in a binary fashion (“yes”/“no”) into categories of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise, and trust. The <code>bing</code> lexicon categorizes words in a binary fashion into positive and negative categories. The <code>AFINN</code> lexicon assigns words with a score that runs between -5 and 5, with negative scores indicating negative sentiment and positive scores indicating positive sentiment. All of this information is tabulated in the <code>sentiments</code> dataset, and tidytext provides a function <code>get_sentiments()</code> to get specific sentiment lexicons without the columns that are not used in that lexicon.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_sentiments</span>(<span class="st">"afinn"</span>)</code></pre></div>
+<pre><code>## # A tibble: 2,476 × 2
+##          word score
+##         &lt;chr&gt; &lt;int&gt;
+## 1     abandon    -2
+## 2   abandoned    -2
+## 3    abandons    -2
+## 4    abducted    -2
+## 5   abduction    -2
+## 6  abductions    -2
+## 7       abhor    -3
+## 8    abhorred    -3
+## 9   abhorrent    -3
+## 10     abhors    -3
+## # ... with 2,466 more rows</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_sentiments</span>(<span class="st">"bing"</span>)</code></pre></div>
+<pre><code>## # A tibble: 6,788 × 2
+##           word sentiment
+##          &lt;chr&gt;     &lt;chr&gt;
+## 1      2-faced  negative
+## 2      2-faces  negative
+## 3           a+  positive
+## 4     abnormal  negative
+## 5      abolish  negative
+## 6   abominable  negative
+## 7   abominably  negative
+## 8    abominate  negative
+## 9  abomination  negative
+## 10       abort  negative
+## # ... with 6,778 more rows</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_sentiments</span>(<span class="st">"nrc"</span>)</code></pre></div>
+<pre><code>## # A tibble: 13,901 × 2
+##           word sentiment
+##          &lt;chr&gt;     &lt;chr&gt;
+## 1       abacus     trust
+## 2      abandon      fear
+## 3      abandon  negative
+## 4      abandon   sadness
+## 5    abandoned     anger
+## 6    abandoned      fear
+## 7    abandoned  negative
+## 8    abandoned   sadness
+## 9  abandonment     anger
+## 10 abandonment      fear
+## # ... with 13,891 more rows</code></pre>
+<p>How were these sentiment lexicons put together and validated? They were constructed via either crowdsourcing (using, for example, Amazon Mechanical Turk) or by the labor of one of the authors, and were validated using some combination of crowdsourcing again, restaurant or movie reviews, or Twitter data. Given this information, we may hesitate to apply these sentiment lexicons to styles of text dramatically different from what they were validated on, such as narrative fiction from 200 years ago. While it is true that using these sentiment lexicons with, for example, Jane Austen’s novels may give us less accurate results than with tweets sent by a contemporary writer, we still can measure the sentiment content for words that are shared across the lexicon and the text.</p>
+<p>There are also some domain-specific sentiment lexicons available, constructed to be used with text from a specific content area. Section <a href="http://tidytextmining.com/dtm.html#financial">5.3.1</a> explores an analysis using a sentiment lexicon specifically for finance.</p>
+<div class="rmdnote">
+<p>
+Dictionary-based methods like the ones we are discussing find the total sentiment of a piece of text by adding up the individual sentiment scores for each word in the text.
+</p>
+</div>
+<p>Not every English word is in the lexicons because many English words are pretty neutral. It is important to keep in mind that these methods do not take into account qualifiers before a word, such as in “no good” or “not true”; a lexicon-based method like this is based on unigrams only. For many kinds of text (like the narrative examples below), there are not sustained sections of sarcasm or negated text, so this is not an important effect. Also, we can use a tidy text approach to begin to understand what kinds of negation words are important in a given text; see Chapter <a href="http://tidytextmining.com/usenet.html#usenet">9</a> for an extended example of such an analysis.</p>
+<p>One last caveat is that the size of the chunk of text that we use to add up unigram sentiment scores can have an effect on an analysis. A text the size of many paragraphs can often have positive and negative sentiment averaged out to about zero, while sentence-sized or paragraph-sized text often works better.</p>
+</div>
+<div id="sentiment-analysis-with-inner-join" class="section level2">
+<h2><span class="header-section-number">2.2</span> Sentiment analysis with inner join</h2>
+<p>With data in a tidy format, sentiment analysis can be done as an inner join. This is another of the great successes of viewing text mining as a tidy data analysis task; much as removing stop words is an antijoin operation, performing sentiment analysis is an inner join operation.</p>
+<p>Let’s look at the words with a joy score from the NRC lexicon. What are the most common joy words in <em>Emma</em>? First, we need to take the text of the novels and convert the text to the tidy format using <code>unnest_tokens()</code>, just as we did in Section <a href="http://tidytextmining.com/tidytext.html#tidyausten">1.3</a>. Let’s also set up some other columns to keep track of which line and chapter of the book each word comes from; we use <code>group_by</code> and <code>mutate</code> to construct those columns.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(janeaustenr)
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(stringr)
+
+tidy_books &lt;-<span class="st"> </span><span class="kw">austen_books</span>() %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(book) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">linenumber =</span> <span class="kw">row_number</span>(),
+         <span class="dt">chapter =</span> <span class="kw">cumsum</span>(<span class="kw">str_detect</span>(text, <span class="kw">regex</span>(<span class="st">"^chapter [</span><span class="ch">\\</span><span class="st">divxlc]"</span>, 
+                                                 <span class="dt">ignore_case =</span> <span class="ot">TRUE</span>)))) %&gt;%
+<span class="st">  </span><span class="kw">ungroup</span>() %&gt;%
+<span class="st">  </span><span class="kw">unnest_tokens</span>(word, text)</code></pre></div>
+<p>Notice that we chose the name <code>word</code> for the output column from <code>unnest_tokens()</code>. This is a convenient choice because the sentiment lexicons and stop word datasets have columns named <code>word</code>; performing inner joins and anti-joins is thus easier.</p>
+<p>Now that the text is in a tidy format with one word per row, we are ready to do the sentiment analysis. First, let’s use the NRC lexicon and <code>filter()</code> for the joy words. Next, let’s <code>filter()</code> the data frame with the text from the books for the words from <em>Emma</em> and then use <code>inner_join()</code> to perform the sentiment analysis. What are the most common joy words in <em>Emma</em>? Let’s use <code>count()</code> from dplyr.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nrcjoy &lt;-<span class="st"> </span><span class="kw">get_sentiments</span>(<span class="st">"nrc"</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(sentiment ==<span class="st"> "joy"</span>)
+
+tidy_books %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(book ==<span class="st"> "Emma"</span>) %&gt;%
+<span class="st">  </span><span class="kw">inner_join</span>(nrcjoy) %&gt;%
+<span class="st">  </span><span class="kw">count</span>(word, <span class="dt">sort =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>## # A tibble: 303 × 2
+##       word     n
+##      &lt;chr&gt; &lt;int&gt;
+## 1     good   359
+## 2    young   192
+## 3   friend   166
+## 4     hope   143
+## 5    happy   125
+## 6     love   117
+## 7     deal    92
+## 8    found    92
+## 9  present    89
+## 10    kind    82
+## # ... with 293 more rows</code></pre>
+<p>We see many positive, happy words about hope, friendship, and love here.</p>
+<p>Or instead we could examine how sentiment changes throughout each novel. We can do this with just a handful of lines that are mostly dplyr functions. First, we find a sentiment score for each word using the Bing lexicon and <code>inner_join()</code>.</p>
+<p>Next, we count up how many positive and negative words there are in defined sections of each book. We define an <code>index</code> here to keep track of where we are in the narrative; this index (using integer division) counts up sections of 100 lines of text.</p>
+<div class="rmdtip">
+<p>
+The <code>%/%</code> operator does integer division (<code>x %/% y</code> is equivalent to <code>floor(x/y)</code>) so the index keeps track of which 80-line section of text we are counting up negative and positive sentiment in.
+</p>
+</div>
+<p>Small sections of text may not have enough words in them to get a good estimate of sentiment while really large sections can wash out narrative structure. For these books, using 80 lines works well, but this can vary depending on individual texts, how long the lines were to start with, etc. We then use <code>spread()</code> so that we have negative and positive sentiment in separate columns, and lastly calculate a net sentiment (positive - negative).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyr)
+
+janeaustensentiment &lt;-<span class="st"> </span>tidy_books %&gt;%
+<span class="st">  </span><span class="kw">inner_join</span>(<span class="kw">get_sentiments</span>(<span class="st">"bing"</span>)) %&gt;%
+<span class="st">  </span><span class="kw">count</span>(book, <span class="dt">index =</span> linenumber %/%<span class="st"> </span><span class="dv">80</span>, sentiment) %&gt;%
+<span class="st">  </span><span class="kw">spread</span>(sentiment, n, <span class="dt">fill =</span> <span class="dv">0</span>) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sentiment =</span> positive -<span class="st"> </span>negative)</code></pre></div>
+<p>Now we can plot these sentiment scores across the plot trajectory of each novel. Notice that we are plotting against the <code>index</code> on the x-axis that keeps track of narrative time in sections of text.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+
+<span class="kw">ggplot</span>(janeaustensentiment, <span class="kw">aes</span>(index, sentiment, <span class="dt">fill =</span> book)) +
+<span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">show.legend =</span> <span class="ot">FALSE</span>) +
+<span class="st">  </span><span class="kw">facet_wrap</span>(~book, <span class="dt">ncol =</span> <span class="dv">2</span>, <span class="dt">scales =</span> <span class="st">"free_x"</span>)</code></pre></div>
+<div class="figure"><span id="fig:sentimentplot"></span>
+<img src="./Text Mining with R_files/sentimentplot-1.png" alt="Sentiment through the narratives of Jane Austen&#39;s novels" width="864">
+<p class="caption">
+Figure 2.2: Sentiment through the narratives of Jane Austen’s novels
+</p>
+</div>
+<p>We can see in Figure <a href="http://tidytextmining.com/sentiment.html#fig:sentimentplot">2.2</a> how the plot of each novel changes toward more positive or negative sentiment over the trajectory of the story.</p>
+</div>
+<div id="comparing-the-three-sentiment-dictionaries" class="section level2">
+<h2><span class="header-section-number">2.3</span> Comparing the three sentiment dictionaries</h2>
+<p>With several options for sentiment lexicons, you might want some more information on which one is appropriate for your purposes. Let’s use all three sentiment lexicons and examine how the sentiment changes across the narrative arc of <em>Pride and Prejudice</em>. First, let’s use <code>filter()</code> to choose only the words from the one novel we are interested in.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pride_prejudice &lt;-<span class="st"> </span>tidy_books %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(book ==<span class="st"> "Pride &amp; Prejudice"</span>)
+
+pride_prejudice</code></pre></div>
+<pre><code>## # A tibble: 122,204 × 4
+##                 book linenumber chapter      word
+##               &lt;fctr&gt;      &lt;int&gt;   &lt;int&gt;     &lt;chr&gt;
+## 1  Pride &amp; Prejudice          1       0     pride
+## 2  Pride &amp; Prejudice          1       0       and
+## 3  Pride &amp; Prejudice          1       0 prejudice
+## 4  Pride &amp; Prejudice          3       0        by
+## 5  Pride &amp; Prejudice          3       0      jane
+## 6  Pride &amp; Prejudice          3       0    austen
+## 7  Pride &amp; Prejudice          7       1   chapter
+## 8  Pride &amp; Prejudice          7       1         1
+## 9  Pride &amp; Prejudice         10       1        it
+## 10 Pride &amp; Prejudice         10       1        is
+## # ... with 122,194 more rows</code></pre>
+<p>Now, we can use <code>inner_join()</code> to calculate the sentiment in different ways.</p>
+<div class="rmdnote">
+<p>
+Remember from above that the AFINN lexicon measures sentiment with a numeric score between -5 and 5, while the other two lexicons categorize words in a binary fashion, either positive or negative. To find a sentiment score in chunks of text throughout the novel, we will need to use a different pattern for the AFINN lexicon than for the other two.
+</p>
+</div>
+<p>Let’s again use integer division (<code>%/%</code>) to define larger sections of text that span multiple lines, and we can use the same pattern with <code>count()</code>, <code>spread()</code>, and <code>mutate()</code> to find the net sentiment in each of these sections of text.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">afinn &lt;-<span class="st"> </span>pride_prejudice %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">inner_join</span>(<span class="kw">get_sentiments</span>(<span class="st">"afinn"</span>)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(<span class="dt">index =</span> linenumber %/%<span class="st"> </span><span class="dv">80</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">sentiment =</span> <span class="kw">sum</span>(score)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">method =</span> <span class="st">"AFINN"</span>)
+
+bing_and_nrc &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(pride_prejudice %&gt;%<span class="st"> </span>
+<span class="st">                            </span><span class="kw">inner_join</span>(<span class="kw">get_sentiments</span>(<span class="st">"bing"</span>)) %&gt;%
+<span class="st">                            </span><span class="kw">mutate</span>(<span class="dt">method =</span> <span class="st">"Bing et al."</span>),
+                          pride_prejudice %&gt;%<span class="st"> </span>
+<span class="st">                            </span><span class="kw">inner_join</span>(<span class="kw">get_sentiments</span>(<span class="st">"nrc"</span>) %&gt;%<span class="st"> </span>
+<span class="st">                                         </span><span class="kw">filter</span>(sentiment %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">"positive"</span>, 
+                                                                 <span class="st">"negative"</span>))) %&gt;%
+<span class="st">                            </span><span class="kw">mutate</span>(<span class="dt">method =</span> <span class="st">"NRC"</span>)) %&gt;%
+<span class="st">  </span><span class="kw">count</span>(method, <span class="dt">index =</span> linenumber %/%<span class="st"> </span><span class="dv">80</span>, sentiment) %&gt;%
+<span class="st">  </span><span class="kw">spread</span>(sentiment, n, <span class="dt">fill =</span> <span class="dv">0</span>) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sentiment =</span> positive -<span class="st"> </span>negative)</code></pre></div>
+<p>We now have an estimate of the net sentiment (positive - negative) in each chunk of the novel text for each sentiment lexicon. Let’s bind them together and visualize them in Figure <a href="http://tidytextmining.com/sentiment.html#fig:compareplot">2.3</a>.</p>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">bind_rows</span>(afinn, 
+          bing_and_nrc) %&gt;%
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(index, sentiment, <span class="dt">fill =</span> method)) +
+<span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">show.legend =</span> <span class="ot">FALSE</span>) +
+<span class="st">  </span><span class="kw">facet_wrap</span>(~method, <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">"free_y"</span>)</code></pre></div>
+<div class="figure"><span id="fig:compareplot"></span>
+<img src="./Text Mining with R_files/compareplot-1.png" alt="Comparing three sentiment lexicons using Pride and Prejudice" width="864">
+<p class="caption">
+Figure 2.3: Comparing three sentiment lexicons using <em>Pride and Prejudice</em>
+</p>
+</div>
+<p>The three different lexicons for calculating sentiment give results that are different in an absolute sense but have similar relative trajectories through the novel. We see similar dips and peaks in sentiment at about the same places in the novel, but the absolute values are significantly different. The AFINN lexicon gives the largest absolute values, with high positive values. The lexicon from Bing et al. has lower absolute values and seems to label larger blocks of contiguous positive or negative text. The NRC results are shifted higher relative to the other two, labeling the text more positively, but detects similar relative changes in the text. We find similar differences between the methods when looking at other novels; the NRC sentiment is high, the AFINN sentiment has more variance, the Bing et al. sentiment appears to find longer stretches of similar text, but all three agree roughly on the overall trends in the sentiment through a narrative arc.</p>
+<p>Why is, for example, the result for the NRC lexicon biased so high in sentiment compared to the Bing et al. result? Let’s look briefly at how many positive and negative words are in these lexicons.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_sentiments</span>(<span class="st">"nrc"</span>) %&gt;%<span class="st"> </span>
+<span class="st">     </span><span class="kw">filter</span>(sentiment %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">"positive"</span>, 
+                             <span class="st">"negative"</span>)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">count</span>(sentiment)</code></pre></div>
+<pre><code>## # A tibble: 2 × 2
+##   sentiment     n
+##       &lt;chr&gt; &lt;int&gt;
+## 1  negative  3324
+## 2  positive  2312</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_sentiments</span>(<span class="st">"bing"</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">count</span>(sentiment)</code></pre></div>
+<pre><code>## # A tibble: 2 × 2
+##   sentiment     n
+##       &lt;chr&gt; &lt;int&gt;
+## 1  negative  4782
+## 2  positive  2006</code></pre>
+<p>Both lexicons have more negative than positive words, but the ratio of negative to positive words is higher in the Bing lexicon than the NRC lexicon. This will contribute to the effect we see in the plot above, as will any systematic difference in word matches, e.g.&nbsp;if the negative words in the NRC lexicon do not match the words that Jane Austen uses very well. Whatever the source of these differences, we see similar relative trajectories across the narrative arc, with similar changes in slope, but marked differences in absolute sentiment from lexicon to lexicon. This is all important context to keep in mind when choosing a sentiment lexicon for analysis.</p>
+</div>
+<div id="most-positive-negative" class="section level2">
+<h2><span class="header-section-number">2.4</span> Most common positive and negative words</h2>
+<p>One advantage of having the data frame with both sentiment and word is that we can analyze word counts that contribute to each sentiment. By implementing <code>count()</code> here with arguments of both <code>word</code> and <code>sentiment</code>, we find out how much each word contributed to each sentiment.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bing_word_counts &lt;-<span class="st"> </span>tidy_books %&gt;%
+<span class="st">  </span><span class="kw">inner_join</span>(<span class="kw">get_sentiments</span>(<span class="st">"bing"</span>)) %&gt;%
+<span class="st">  </span><span class="kw">count</span>(word, sentiment, <span class="dt">sort =</span> <span class="ot">TRUE</span>) %&gt;%
+<span class="st">  </span><span class="kw">ungroup</span>()
+
+bing_word_counts</code></pre></div>
+<pre><code>## # A tibble: 2,585 × 3
+##        word sentiment     n
+##       &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+## 1      miss  negative  1855
+## 2      well  positive  1523
+## 3      good  positive  1380
+## 4     great  positive   981
+## 5      like  positive   725
+## 6    better  positive   639
+## 7    enough  positive   613
+## 8     happy  positive   534
+## 9      love  positive   495
+## 10 pleasure  positive   462
+## # ... with 2,575 more rows</code></pre>
+<p>This can be shown visually, and we can pipe straight into ggplot2, if we like, because of the way we are consistently using tools built for handling tidy data frames.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bing_word_counts %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(sentiment) %&gt;%
+<span class="st">  </span><span class="kw">top_n</span>(<span class="dv">10</span>) %&gt;%
+<span class="st">  </span><span class="kw">ungroup</span>() %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">word =</span> <span class="kw">reorder</span>(word, n)) %&gt;%
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(word, n, <span class="dt">fill =</span> sentiment)) +
+<span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">show.legend =</span> <span class="ot">FALSE</span>) +
+<span class="st">  </span><span class="kw">facet_wrap</span>(~sentiment, <span class="dt">scales =</span> <span class="st">"free_y"</span>) +
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">"Contribution to sentiment"</span>,
+       <span class="dt">x =</span> <span class="ot">NULL</span>) +
+<span class="st">  </span><span class="kw">coord_flip</span>()</code></pre></div>
+<div class="figure"><span id="fig:pipetoplot"></span>
+<img src="./Text Mining with R_files/pipetoplot-1.png" alt="Words that contribute to positive and negative sentiment in Jane Austen&#39;s novels" width="768">
+<p class="caption">
+Figure 2.4: Words that contribute to positive and negative sentiment in Jane Austen’s novels
+</p>
+</div>
+<p>Figure <a href="http://tidytextmining.com/sentiment.html#fig:pipetoplot">2.4</a> lets us spot an anomaly in the sentiment analysis; the word “miss” is coded as negative but it is used as a title for young, unmarried women in Jane Austen’s works. If it were appropriate for our purposes, we could easily add “miss” to a custom stop-words list using <code>bind_rows()</code>. We could implement that with a strategy such as this.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">custom_stop_words &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(<span class="kw">data_frame</span>(<span class="dt">word =</span> <span class="kw">c</span>(<span class="st">"miss"</span>), 
+                                          <span class="dt">lexicon =</span> <span class="kw">c</span>(<span class="st">"custom"</span>)), 
+                               stop_words)
+
+custom_stop_words</code></pre></div>
+<pre><code>## # A tibble: 1,150 × 2
+##           word lexicon
+##          &lt;chr&gt;   &lt;chr&gt;
+## 1         miss  custom
+## 2            a   SMART
+## 3          a's   SMART
+## 4         able   SMART
+## 5        about   SMART
+## 6        above   SMART
+## 7    according   SMART
+## 8  accordingly   SMART
+## 9       across   SMART
+## 10    actually   SMART
+## # ... with 1,140 more rows</code></pre>
+</div>
+<div id="wordclouds" class="section level2">
+<h2><span class="header-section-number">2.5</span> Wordclouds</h2>
+<p>We’ve seen that this tidy text mining approach works well with ggplot2, but having our data in a tidy format is useful for other plots as well.</p>
+<p>For example, consider the wordcloud package, which uses base R graphics. Let’s look at the most common words in Jane Austen’s works as a whole again, but this time as a wordcloud in Figure <a href="http://tidytextmining.com/sentiment.html#fig:firstwordcloud">2.5</a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(wordcloud)
+
+tidy_books %&gt;%
+<span class="st">  </span><span class="kw">anti_join</span>(stop_words) %&gt;%
+<span class="st">  </span><span class="kw">count</span>(word) %&gt;%
+<span class="st">  </span><span class="kw">with</span>(<span class="kw">wordcloud</span>(word, n, <span class="dt">max.words =</span> <span class="dv">100</span>))</code></pre></div>
+<div class="figure"><span id="fig:firstwordcloud"></span>
+<img src="./Text Mining with R_files/firstwordcloud-1.png" alt="The most common words in Jane Austen&#39;s novels" width="576">
+<p class="caption">
+Figure 2.5: The most common words in Jane Austen’s novels
+</p>
+</div>
+<p>In other functions, such as <code>comparison.cloud()</code>, you may need to turn the data frame into a matrix with reshape2’s <code>acast()</code>. Let’s do the sentiment analysis to tag positive and negative words using an inner join, then find the most common positive and negative words. Until the step where we need to send the data to <code>comparison.cloud()</code>, this can all be done with joins, piping, and dplyr because our data is in tidy format.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reshape2)
+
+tidy_books %&gt;%
+<span class="st">  </span><span class="kw">inner_join</span>(<span class="kw">get_sentiments</span>(<span class="st">"bing"</span>)) %&gt;%
+<span class="st">  </span><span class="kw">count</span>(word, sentiment, <span class="dt">sort =</span> <span class="ot">TRUE</span>) %&gt;%
+<span class="st">  </span><span class="kw">acast</span>(word ~<span class="st"> </span>sentiment, <span class="dt">value.var =</span> <span class="st">"n"</span>, <span class="dt">fill =</span> <span class="dv">0</span>) %&gt;%
+<span class="st">  </span><span class="kw">comparison.cloud</span>(<span class="dt">colors =</span> <span class="kw">c</span>(<span class="st">"#F8766D"</span>, <span class="st">"#00BFC4"</span>),
+                   <span class="dt">max.words =</span> <span class="dv">100</span>)</code></pre></div>
+<div class="figure"><span id="fig:wordcloud"></span>
+<img src="./Text Mining with R_files/wordcloud-1.png" alt="Most common positive and negative words in Jane Austen&#39;s novels" width="480">
+<p class="caption">
+Figure 2.6: Most common positive and negative words in Jane Austen’s novels
+</p>
+</div>
+<p>The size of a word’s text in Figure <a href="http://tidytextmining.com/sentiment.html#fig:wordcloud">2.6</a> is in proportion to its frequency within its sentiment. We can use this visualization to see the most important positive and negative words, but the sizes of the words are not comparable across sentiments.</p>
+</div>
+<div id="looking-at-units-beyond-just-words" class="section level2">
+<h2><span class="header-section-number">2.6</span> Looking at units beyond just words</h2>
+<p>Lots of useful work can be done by tokenizing at the word level, but sometimes it is useful or necessary to look at different units of text. For example, some sentiment analysis algorithms look beyond only unigrams (i.e.&nbsp;single words) to try to understand the sentiment of a sentence as a whole. These algorithms try to understand that</p>
+<blockquote>
+<p>I am not having a good day.</p>
+</blockquote>
+<p>is a sad sentence, not a happy one, because of negation. R packages included coreNLP <span class="citation">(T. Arnold and Tilton <a href="http://tidytextmining.com/sentiment.html#ref-R-coreNLP">2016</a>)</span>, cleanNLP <span class="citation">(T. B. Arnold <a href="http://tidytextmining.com/sentiment.html#ref-R-cleanNLP">2016</a>)</span>, and sentimentr <span class="citation">(Rinker <a href="http://tidytextmining.com/sentiment.html#ref-R-sentimentr">2017</a>)</span> are examples of such sentiment analysis algorithms. For these, we may want to tokenize text into sentences, and it makes sense to use a new name for the output column in such a case.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PandP_sentences &lt;-<span class="st"> </span><span class="kw">data_frame</span>(<span class="dt">text =</span> prideprejudice) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest_tokens</span>(sentence, text, <span class="dt">token =</span> <span class="st">"sentences"</span>)</code></pre></div>
+<p>Let’s look at just one.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PandP_sentences$sentence[<span class="dv">2</span>]</code></pre></div>
+<pre><code>## [1] "however little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered the rightful property of some one or other of their daughters."</code></pre>
+<p>The sentence tokenizing does seem to have a bit of trouble with UTF-8 encoded text, especially with sections of dialogue; it does much better with punctuation in ASCII. One possibility, if this is important, is to try using <code>iconv()</code>, with something like <code>iconv(text, to = 'latin1')</code> in a mutate statement before unnesting.</p>
+<p>Another option in <code>unnest_tokens()</code> is to split into tokens using a regex pattern. We could use this, for example, to split the text of Jane Austen’s novels into a data frame by chapter.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">austen_chapters &lt;-<span class="st"> </span><span class="kw">austen_books</span>() %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(book) %&gt;%
+<span class="st">  </span><span class="kw">unnest_tokens</span>(chapter, text, <span class="dt">token =</span> <span class="st">"regex"</span>, 
+                <span class="dt">pattern =</span> <span class="st">"Chapter|CHAPTER [</span><span class="ch">\\</span><span class="st">dIVXLC]"</span>) %&gt;%
+<span class="st">  </span><span class="kw">ungroup</span>()
+
+austen_chapters %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(book) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">chapters =</span> <span class="kw">n</span>())</code></pre></div>
+<pre><code>## # A tibble: 6 × 2
+##                  book chapters
+##                &lt;fctr&gt;    &lt;int&gt;
+## 1 Sense &amp; Sensibility       51
+## 2   Pride &amp; Prejudice       62
+## 3      Mansfield Park       49
+## 4                Emma       56
+## 5    Northanger Abbey       32
+## 6          Persuasion       25</code></pre>
+<p>We have recovered the correct number of chapters in each novel (plus an “extra” row for each novel title). In the <code>austen_chapters</code> data frame, each row corresponds to one chapter.</p>
+<p>Near the beginning of this chapter, we used a similar regex to find where all the chapters were in Austen’s novels for a tidy data frame organized by one-word-per-row. We can use tidy text analysis to ask questions such as what are the most negative chapters in each of Jane Austen’s novels? First, let’s get the list of negative words from the Bing lexicon. Second, let’s make a data frame of how many words are in each chapter so we can normalize for the length of chapters. Then, let’s find the number of negative words in each chapter and divide by the total words in each chapter. For each book, which chapter has the highest proportion of negative words?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bingnegative &lt;-<span class="st"> </span><span class="kw">get_sentiments</span>(<span class="st">"bing"</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(sentiment ==<span class="st"> "negative"</span>)
+
+wordcounts &lt;-<span class="st"> </span>tidy_books %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(book, chapter) %&gt;%
+<span class="st">  </span><span class="kw">summarize</span>(<span class="dt">words =</span> <span class="kw">n</span>())
+
+tidy_books %&gt;%
+<span class="st">  </span><span class="kw">semi_join</span>(bingnegative) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(book, chapter) %&gt;%
+<span class="st">  </span><span class="kw">summarize</span>(<span class="dt">negativewords =</span> <span class="kw">n</span>()) %&gt;%
+<span class="st">  </span><span class="kw">left_join</span>(wordcounts, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">"book"</span>, <span class="st">"chapter"</span>)) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ratio =</span> negativewords/words) %&gt;%
+<span class="st">  </span><span class="kw">filter</span>(chapter !=<span class="st"> </span><span class="dv">0</span>) %&gt;%
+<span class="st">  </span><span class="kw">top_n</span>(<span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">ungroup</span>()</code></pre></div>
+<pre><code>## # A tibble: 6 × 5
+##                  book chapter negativewords words      ratio
+##                &lt;fctr&gt;   &lt;int&gt;         &lt;int&gt; &lt;int&gt;      &lt;dbl&gt;
+## 1 Sense &amp; Sensibility      43           161  3405 0.04728341
+## 2   Pride &amp; Prejudice      34           111  2104 0.05275665
+## 3      Mansfield Park      46           173  3685 0.04694708
+## 4                Emma      15           151  3340 0.04520958
+## 5    Northanger Abbey      21           149  2982 0.04996647
+## 6          Persuasion       4            62  1807 0.03431101</code></pre>
+<p>These are the chapters with the most sad words in each book, normalized for number of words in the chapter. What is happening in these chapters? In Chapter 43 of <em>Sense and Sensibility</em> Marianne is seriously ill, near death, and in Chapter 34 of <em>Pride and Prejudice</em> Mr.&nbsp;Darcy proposes for the first time (so badly!). Chapter 46 of <em>Mansfield Park</em> is almost the end, when everyone learns of Henry’s scandalous adultery, Chapter 15 of <em>Emma</em> is when horrifying Mr.&nbsp;Elton proposes, and in Chapter 21 of <em>Northanger Abbey</em> Catherine is deep in her Gothic faux fantasy of murder, etc. Chapter 4 of <em>Persuasion</em> is when the reader gets the full flashback of Anne refusing Captain Wentworth and how sad she was and what a terrible mistake she realized it to be.</p>
+</div>
+<div id="summary-1" class="section level2">
+<h2><span class="header-section-number">2.7</span> Summary</h2>
+<p>Sentiment analysis provides a way to understand the attitudes and opinions expressed in texts. In this chapter, we explored how to approach sentiment analysis using tidy data principles; when text data is in a tidy data structure, sentiment analysis can be implemented as an inner join. We can use sentiment analysis to understand how a narrative arc changes throughout its course or what words with emotional and opinion content are important for a particular text. We will continue to develop our toolbox for applying sentiment analysis to different kinds of text in our case studies later in this book.</p>
+
+</div>
+</div>
+<h3> References</h3>
+<div id="refs" class="references">
+<div id="ref-R-coreNLP">
+<p>Arnold, Taylor, and Lauren Tilton. 2016. <em>coreNLP: Wrappers Around Stanford CoreNLP Tools</em>. <a href="https://cran.r-project.org/package=coreNLP" class="uri">https://cran.r-project.org/package=coreNLP</a>.</p>
+</div>
+<div id="ref-R-cleanNLP">
+<p>Arnold, Taylor B. 2016. <em>cleanNLP: A Tidy Data Model for Natural Language Processing</em>. <a href="https://cran.r-project.org/package=cleanNLP" class="uri">https://cran.r-project.org/package=cleanNLP</a>.</p>
+</div>
+<div id="ref-R-sentimentr">
+<p>Rinker, Tyler W. 2017. <em>sentimentr: Calculate Text Polarity Sentiment</em>. Buffalo, New York: University at Buffalo/SUNY. <a href="http://github.com/trinker/sentimentr" class="uri">http://github.com/trinker/sentimentr</a>.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="http://tidytextmining.com/tidytext.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="http://tidytextmining.com/tfidf.html" class="navigation navigation-next " aria-label="Next page" "="" style="margin-right: 15px;"><i class="fa fa-angle-right"></i></a>
+
+<script src="./Text Mining with R_files/app.min.js"></script>
+<script src="./Text Mining with R_files/lunr.js"></script>
+<script src="./Text Mining with R_files/plugin-search.js"></script>
+<script src="./Text Mining with R_files/plugin-sharing.js"></script>
+<script src="./Text Mining with R_files/plugin-fontsettings.js"></script>
+<script src="./Text Mining with R_files/plugin-bookdown.js"></script>
+<script src="./Text Mining with R_files/jquery.highlight.js"></script>
+<script>
+require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/dgrtwo/tidy-text-mining/edit/master/02-sentiment-analysis.Rmd",
+"text": "Edit"
+},
+"download": null,
+"toc": {
+"collapse": "section"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+
+</div></div></body></html>
